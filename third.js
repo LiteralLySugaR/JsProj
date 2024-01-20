@@ -28,13 +28,12 @@ function Start () {
 
             Start();
         }
-        else if (command.startsWith('start')) {
+        else if (command.startsWith('start') || command.startsWith('str')) {
             let aiLevel = command.split(' ')[1];
 
-            if (aiLevel == 0 || typeof aiLevel == 'undefined') { 
+            if (aiLevel == 0 || aiLevel > 3 || aiLevel < 1 || typeof aiLevel == 'undefined') { 
                 aiLevel = 2;
             }
-            aiLevel = 2;
 
             InnitCards();
             console.clear();
@@ -55,19 +54,23 @@ function InnitCards () {
         }
         else { i--; }
     }
-
-    //let vars = [];
-    //
-    //for (let i = 0; i < cards.length; i++) {
-    //    if (cardsType[i] != 0) {
-    //        vars.push(cards[i] + ' as ' + cardsType[i])
-    //    }
-    //}
-    //console.log(vars.join('\n'));
 }
 
 function Game (aiLevel) {
     aiTotal = 0;
+
+    var aiDesc = '';
+
+    if (aiLevel == 1) {
+        aiDesc = '(Careful AI)'
+    }
+    else if (aiLevel == 2) {
+        aiDesc = '(Medium AI)'
+    }
+    else {
+        aiDesc = '(Reckless AI)'
+    }
+
     if (gameEnded == false) {
         let gameDescPlayerAmount = 0;
         let gameDescPlayerHiddenCard = 0;
@@ -86,7 +89,7 @@ function Game (aiLevel) {
         }
         gameDescPlayer += `(${gameDescPlayerAmount})`
     
-        let gameDescAI = 'AI cards: ';
+        let gameDescAI = `AI ${aiDesc} cards: `;
     
         for (let i = 0; i < cards.length; i++) {
             if (cardsType[i] == 3) {
@@ -165,7 +168,7 @@ function Game (aiLevel) {
         }
         gameDescPlayer += `(${gameDescPlayerAmount})`
     
-        let gameDescAI = 'AI cards: ';
+        let gameDescAI = `AI ${aiDesc} cards: `;
     
         for (let i = 0; i < cards.length; i++) {
             if (cardsType[i] == 3) {
@@ -226,24 +229,39 @@ function playerHit () {
 }
 
 function aiHitLogic (aiLevel, playerTotal, playerHiddenCard, playerPass) {
-    if (aiLevel == 2) {
-        let rng = GetRandom(100);
+    let minValue = 0;
+    let minRng = 0;
 
-        if (CanTakeSmallerCards(aiTotal) && aiTotal < 16) {
-            aiHit();
-        }
-        else if (rng > 49 && playerTotal - playerHiddenCard < 21 && aiTotal < 21) {
-            for (let i = 0; i < cards.length; i++) {
-                if (cardsType[i] < 2 && aiTotal + cards[i] <= 21) {
-                    aiHit();
-                    break;
-                }
-            }
-        }
-        else { aiPassAction(playerPass); }
+    if (aiLevel == 1) {
+        minValue = 14;
+        minRng = 59;
     }
-    else { 
-        aiPassAction(playerPass);
+    else if (aiLevel == 2) {
+        minValue = 16;
+        minRng = 49;
+    }
+    else if (aiLevel == 3) { 
+        minValue = 18;
+        minRng = 39;
+    }
+
+    let rng = GetRandom(100);
+
+    if (CanTakeSmallerCards(aiTotal) && aiTotal < minValue) {
+        aiHit();
+    }
+    else if (rng > minRng && playerTotal - playerHiddenCard < 21 && aiTotal < 21) {
+        rngAiHit();
+    }
+    else { aiPassAction(playerPass); }
+}
+
+function rngAiHit() {
+    for (let i = 0; i < cards.length; i++) {
+        if (cardsType[i] < 2 && aiTotal + cards[i] <= 21) {
+            aiHit();
+            break;
+        }
     }
 }
 
@@ -277,4 +295,5 @@ function aiPassAction (playerPass) {
         gameEnded = true;
     }
 }
+
 Start();
