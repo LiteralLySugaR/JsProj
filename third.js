@@ -187,7 +187,7 @@ function Game (aiLevel) {
     
         var gameDesc = `${gameDescPlayer}\n---------\n${gameDescAI}`
     
-        if ((gameDescPlayerAmount < aiTotal && aiTotal <= 21) || (gameDescPlayerAmount > aiTotal && aiTotal >= 22)) {
+        if ((gameDescPlayerAmount < aiTotal && aiTotal <= 21) || (gameDescPlayerAmount > aiTotal && aiTotal >= 22) || (gameDescPlayerAmount > 21 && aiTotal <= 21)) {
             isVictory = 'Defeat.';
         }
         else if (aiTotal == gameDescPlayerAmount) {
